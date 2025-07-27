@@ -4,24 +4,34 @@ const express = require('express');
 const mongoose = require('mongoose'); 
 const cors = require('cors'); 
 
-// Importiere das Post-Modell
+// Importiere das Post-Modell (NUR EINMAL)
 const Post = require('./models/Post');
 
 const app = express(); 
-const PORT = process.env.PORT || 5000; // Port für den Server, Standard ist 5000
+const PORT = process.env.PORT || 8080; // Port für den Server, Standard ist 5000
 const MONGODB_URI = process.env.MONGODB_URI; // MONGODB URI aus .env
+console.log('1. Server Start: MONGODB_URI (aus .env):', MONGODB_URI); 
 
 // Middleware
-app.use(cors()); // Erlaubt Cross- Origin Anfragen vom Frontend
+console.log('2. Middleware: app.use(cors(()) wird angewendet.');
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+})); // Erlaubt Cross-Origin Anfragen vom Frontend
+console.log('3. Middleware app.use(express.json(()) wird angewendet.');
 app.use(express.json()); // Erlaubt dem Server, JSON Daten im Request Body zu parsen 
 
 // Datenbankverbindung
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('MongoDB erfolgreich verbunden!'))
-    .catch(err => console.error('MongoDB Verbindungsfehler:', err)); 
-
+console.log('4. Datenbankverbindung: Verbindungsversuch zu MongoDB...')
+mongoose.connect(MONGODB_URI) // <-- Korrigiert: MONGODB_URI verwenden
+    .then(() => console.log('5. Datenbankverbindung: MongoDB erfolgreich verbunden!'))
+    .catch(err => console.error('5. Datenbankverbindung: MongoDB Verbindungsfehler:', err)); 
+// Routen Definitionen
+console.log('6. Routen: Definitionen beginnen...');
 // Erste Route (Test Endpunkt)
 app.get('/', (req, res) => {
+    console.log('7. Route-Root: Anfrage an / erhalten.');
     res.send('Willkommen zur Blog API!');
 }); 
 
@@ -29,10 +39,13 @@ app.get('/', (req, res) => {
 // Route 1: Alle Blog- Beiträge abrufen (READ all)
 // GET /api/posts
 app.get('/api/posts', async (req, res) => {
+    console.log('8. Route-API: Anfrage an /api/posts erhalten.');
     try {
-        const posts = await Post.find().sort({ createdAt: -1 }); // Alle Beitröge finden 
+        const posts = await Post.find(); // Alle Beiträge finden
+        console.log('9. Route-API: Posts aus Datenbank abgerufen:', posts.length); 
         res.json(posts); // und als JSON zurückgeben 
     } catch (err) {
+        console.error('10. Route-API: Fehler in /api/posts:', err.message)
         res.status(500).json({message: err.message }); // Fehler bei Serverantwort
     }
 });
@@ -40,7 +53,7 @@ app.get('/api/posts', async (req, res) => {
 // Route 2: Einen neuen Blog- Beitrag erstellen (CREATE)
 // POST /api/posts
 app.post('/api/posts', async (req, res) => {
-    const { title, content, author } = req.body; // Daten aus dem Request- Body extrahieren 
+    const { title, content, author } = req.body; // <-- Korrigiert: Destrukturierung
 
     // Einfache Validierung
     if (!title || !content) {
@@ -61,7 +74,9 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
-// Server starten 
+// Server starten
+console.log('11. Server-Setup abgeschlossen: Versuche zu lauschen...');
 app.listen(PORT, () => {
-    console.log(`Server läuft auf Port ${PORT}`);
+    // ACHTUNG: Hier MÜSSEN BACKTICKS (`) verwendet werden, NICHT ANFÜHRUNGSZEICHEN (' oder ")
+    console.log(`12. Server Listen: Server läuft auf Port ${PORT}`);
 });
