@@ -1,7 +1,9 @@
 import React from 'react'; 
 import logo from './logo.svg';
 import './App.css';
+import PostForm from './PostForm.js';
 import PostList from './PostList.js'; 
+
 
 function App() {
   return (
@@ -11,6 +13,7 @@ function App() {
         {/*Hier werden später unsere Blog Beiträge angezeigt */}
       </header>
        <main>
+        <PostForm />
         <PostList />
        </main>
     </div>
