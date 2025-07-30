@@ -74,6 +74,62 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
+// Route 3: Einen Blog-Beitrag nach ID aktualisieren (UPDATE)
+// PUT /api/posts/:id
+app.put('/api/posts/:id', async (req, res) => {
+    const { id } = req.params; // ID aus den URL-Parametern
+    const {title, content, author } = req.body; // Aktualisiere die Daten aus dem Request Body
+
+    console.log(`Anfrage zum Aktualisieren von Post ID: ${id} erhalten.`);
+
+    // Einfache Validierung
+    if (!title || !content) {
+        return res.status(400).json({ message: 'Titel und Inhalt sind Pflichtfelder'}); 
+    }
+
+    try {
+        const updatedPost = await Post.findByIdAndUpdate(
+            id,
+            { title, content, author },
+            { new: true, runValidators: true} // new: true gibt das aktualisierte Dokument zurück; runValidators: true führt Schema- Validatoren aus
+        );
+
+        if (!updatedPost) {
+            console.log(`Post mit ID ${id} nicht gefunden.`);
+            return res.status(404).json({ message: 'Blog-Beitrag nicht gefunden'});
+        }
+
+        console.log('Post erfolgreich aktualisiert:', updatedPost._id);
+        res.json(updatedPost); // Den aktualisierten Beitrag zurückgeben 
+    } catch (err) {
+        console.error('Fehler beim Aktualisieren des Beitrags:', err.message);
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// Route 4: Einen Blog-Beitrag nach ID löschen (DELETE)
+// DELETE /api/posts/:id
+app.delete('/api/posts/:id', async (req, res) => {
+    const { id } = req.params; // ID aus den URL-Parametern 
+
+    console.log(`Anfrage zum Löschen von Post ID: ${id} erhalten.`);
+
+    try {
+        const deletedPost = await Post.findByIdAndDelete(id); 
+
+        if (!deletedPost) {
+            console.log(`Post mit ID ${id} nicht gefunden.`); 
+            return res.status(400).json({ message: 'Blog- Beitrag nicht gefunden.' }); 
+        }
+
+        console.log('Post erfolgreich gelöscht:', deletedPost._id);
+        res.json({ message: 'Blog-Beitrag erfolgreich gelöscht.' }); // Bestätigungsnachricht zurückgeben
+    } catch (err) {
+        console.error('Fehler beim Löschen des Beitrags:', err.message);
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Server starten
 console.log('11. Server-Setup abgeschlossen: Versuche zu lauschen...');
 app.listen(PORT, () => {
