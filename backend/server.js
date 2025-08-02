@@ -49,6 +49,27 @@ app.get('/api/posts', async (req, res) => {
         res.status(500).json({message: err.message }); // Fehler bei Serverantwort
     }
 });
+// Route 2: Einen Blog- Beitrag nach ID abrufen (READ one)
+// GET /api/posts/:id
+app.get('/api/posts/:id', async (req, res) => {
+    const { id } = req.params; // ID aus den URL-Parametern
+
+    console.log(`Anfrage zum Abrufen von Post ID: ${id} erhalten.`);
+
+    try {
+        const post = await Post.findById(id);
+
+        if (!post) {
+            console.log(`Post mit ID ${id} nicht gefunden.`);
+            return res.status(404).json({ message: 'Blog- Beitrag nicht gefunden'});
+        }
+
+        res.json(post); // Den einzelnen Beitrag zurückgeben
+    } catch (err) {
+        console.error('Fehler beim Abrufen des Beitrags:', err.message);
+        res.status(500).json({ message: 'Interner Serverfehler' });
+    }
+});
 
 // Route 2: Einen neuen Blog- Beitrag erstellen (CREATE)
 // POST /api/posts

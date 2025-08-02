@@ -1,4 +1,5 @@
 import React, {useEffect, useState } from 'react'; 
+import { Link } from 'react-router-dom';
 import PostForm from './PostForm.js';
 
 function PostList() {
@@ -104,7 +105,9 @@ function PostList() {
             
             {posts.map(post => (
                 <div key={post._id} style={{ border: '1px solid #eee', padding: '15px', marginBottom: '15px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
-                    <h3 style={{ marginBottom: '5px' }}>{post.title}</h3>
+                    <Link to={`/posts/${post._id}`} style={{ textDecoration: 'none', color: '#333' }}>
+                        <h3 style={{ marginBottom: '5px' }}>{post.title}</h3>
+                    </Link>
                     <p style={{ fontSize: '0.9em', color: '#666', marginBottom: '10px' }}>
                         Autor: {post.author || 'Unbekannt'} | Erstellt: {new Date(post.createdAt).toLocaleDateString()}
                     </p>
