@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';   
 
 function PostForm({ post, onSuccess}) {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
     const [title, setTitle] = useState(post ? post.title : ''); 
     const [content, setContent] = useState(post ? post.content : '');
     const [author, setAuthor] = useState(post ? post.author : ''); 
@@ -8,18 +12,24 @@ function PostForm({ post, onSuccess}) {
 
     // useEffect, um den State zu aktualisieren, wenn sich der 'post'-Prop ändert
     useEffect(() => {
-        if (post) {
-            setTitle(post.title || '');
-            setContent(post.content || '');
-            setAuthor(post.author || '');
-        } else {
-            // Felder leere, wenn kein Post zum Bearbeiten vorhanden ist
-            setTitle('');
-            setContent('');
-            setAuthor('');
-        }
-        setMessage('');
-    }, [post]);
+        if (id) {
+            const fetchPost = async () => {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/posts/${id}`);
+                    if (!response.ok) {
+                        throw new Error('Beitrag zum Bearbeiten nicht gefunden.');
+                    }
+                    const postData = await response.json();
+                    setTitle(postData.title || '');
+                    setContent(postData.content || '');
+                    setAuthor(postData.author || '');
+                } catch (error) {
+                    setMessage(`Fehler: ${error.message}`);
+                }
+            };
+            fetchPost();
+        } 
+    }, [id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault(); // Verhindert das Neuladen der Seite beim Absenden des Formulars
@@ -34,8 +44,8 @@ function PostForm({ post, onSuccess}) {
         let method = 'POST';
 
         // Wenn ein 'post'-Objekt vorhanden ist, sind wir im Bearbeitungsmodus (PUT-Anfrage)
-        if (post) {
-            url = `http://localhost:8080/api/posts/${post._id}`;
+        if (id) {
+            url = `http://localhost:8080/api/posts/${id}`;
             method = 'PUT'; 
         }
 
@@ -55,23 +65,15 @@ function PostForm({ post, onSuccess}) {
             }
 
             const data = await response.json(); 
-            console.log('Neuer Beitrag erstellt/ aktualisiert:', data);
-            setMessage(`Beitrag erfolgreich ${post ? 'aktualisiert': 'erstellt'}!`);
+            setMessage(`Beitrag erfolgreich ${id ? 'aktualisiert': 'erstellt'}!`);
 
-            // Wenn ein Erfolg- Callback übergeben wurde, rufen wir ihn auf
-            if (onSuccess) {
-                onSuccess();
-            }
-
-            // Felder nach erfolgreichem Senden nur leeren, wenn es ein neuer Beitrag war
-            if (!post) {
+            if (id) {
+                navigate(`/posts/${data._id}`);
+            } else {
                 setTitle('');
                 setContent('');
                 setAuthor('');
             }
-            // Formularfelder nach erfolgreichem Senden zurücksetzen 
-
-            // Optional: Backend- Logs im Terminal prüfen 
         } catch (error) {
             console.error('Fehler beim Erstellen des Beitrags:', error);
             setMessage(`Fehler: ${error.message}`);
@@ -80,7 +82,7 @@ function PostForm({ post, onSuccess}) {
 
     return (
         <div style={{ padding: '20px', maxWidth: '600px', margin: '20px auto', border: '1px solid #ccc', borderRadius: '8px' }}>
-            <h2>{post ? 'Beitrag bearbeiten' : 'Neuen Blog-Beitrag erstellen'}</h2>
+            <h2>{id ? 'Beitrag bearbeiten' : 'Neuen Blog-Beitrag erstellen'}</h2>
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '10px' }}>
                     <label htmlFor="title" style={{ display: 'block', marginBottom: '5px' }}>Titel:</label>
@@ -114,7 +116,7 @@ function PostForm({ post, onSuccess}) {
                         />
                 </div>
                 <button type="submit" style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>
-                    {post ? 'Änderungen speichern' : 'Beitrag erstellen'}
+                    {id ? 'Änderungen speichern' : 'Beitrag erstellen'}
                 </button>
             </form>
             {message && (

@@ -38,9 +38,14 @@ function PostDetail() {
                 Autor: {post.author || 'Unbekannt'} | Erstellt: {new Date(post.createdAt).toLocaleDateString()}
             </p>
             <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6'}}>{post.content}</div>
-            <Link to="/" style={{ display: 'inline-block', marginTop: '20px', padding: '10px 15px', backgroundColor: '#6c757d', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+            <div style={{ marginTop: '20px' }}>
+                <Link to="/" style={{ display: 'inline-block', padding: '10px 15px', backgroundColor: '#6c757d', color: 'white', textDecoration: 'none', borderRadius: '4px', marginRight: '10px' }}>
                 Zurück zur Startseite
-            </Link>
+                </Link>
+                <Link to={`/posts/edit/${post._id}`} style={{ display: 'inline-block', padding: '10px 15px', backgroundColor: '#007bff', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+                Beitrag bearbeiten
+                </Link>
+            </div>
         </div>
     );
 }
