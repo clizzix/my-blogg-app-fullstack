@@ -9,6 +9,7 @@ function PostForm({ post, onSuccess}) {
     const [content, setContent] = useState(post ? post.content : '');
     const [author, setAuthor] = useState(post ? post.author : ''); 
     const [message, setMessage] = useState(''); // Für Erfolgs- oder Fehlermeldung
+    const [errors, setErrors] = useState({}); // State für Fehlerobjekte
 
     // useEffect, um den State zu aktualisieren, wenn sich der 'post'-Prop ändert
     useEffect(() => {
@@ -34,21 +35,32 @@ function PostForm({ post, onSuccess}) {
     const handleSubmit = async (e) => {
         e.preventDefault(); // Verhindert das Neuladen der Seite beim Absenden des Formulars
 
+        // 1. Lokale Validierung durchführen
+        const newErrors = {};
         // Einfache Validierung im Frontend
-        if (!title.trim() || !content.trim()) {
-            setMessage('Titel und Inhalt dürfen nicht leer sein.')
+        if (!title.trim()) {
+            newErrors.title = 'Ein Titel ist erforderlich.';
+        }
+        if (!content.trim()) {
+            newErrors.content = 'Inhalt ist erforderlich.';
+        }
+        setErrors(newErrors);
+
+        // Wenn Fehler vorhanden sind, das Absenden stoppen 
+        if (Object.keys(newErrors).length > 0) {
+            setMessage('Bitte fülle alle Pflichtfelder aus.');
             return;
         }
+        // Wenn keine Fehler vorhanden sind fortfahren
         const postData = { title, content, author };
         let url = 'http://localhost:8080/api/posts';
         let method = 'POST';
 
-        // Wenn ein 'post'-Objekt vorhanden ist, sind wir im Bearbeitungsmodus (PUT-Anfrage)
         if (id) {
             url = `http://localhost:8080/api/posts/${id}`;
             method = 'PUT'; 
         }
-
+        // Wenn ein 'post'-Objekt vorhanden ist, sind wir im Bearbeitungsmodus (PUT-Anfrage)
         try {
             const response = await fetch(url, {
                 method: method,
@@ -93,9 +105,10 @@ function PostForm({ post, onSuccess}) {
                         onChange={(e) => setTitle(e.target.value)}
                         required
                         style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}/>
+                    {errors.title && <p style={{ color: 'red', fontSize: '0.8em', marginTop: '5px'}}>{errors.title}</p>}
                 </div>
                 <div style={{ marginBottom: '10px' }}>
-                    <label htmlFor="content" style={{ display: 'block', marginBottom: '5px'}}>Inhalt:</label>
+                    <label htmlFor="content" style={{ display: 'block', marginBottom: '5px' }}>Inhalt:</label>
                     <textarea 
                         id="content"
                         value={content}
@@ -103,7 +116,8 @@ function PostForm({ post, onSuccess}) {
                         required
                         rows="6"
                         style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                        ></textarea>
+                    ></textarea>
+                    {errors.content && <p style={{ color: 'red', fontSize: '0.8em', marginTop: '5px' }}>{errors.content}</p>}
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                     <label htmlFor="author" style={{ display: 'block', marginBottom: '5px' }}>Autor (optional):</label>
