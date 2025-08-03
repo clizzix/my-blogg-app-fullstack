@@ -14,24 +14,25 @@ function PostList() {
 
    
     
-        // Definieren der Funktion zum Abrufen der Beiträge
+    // Definieren der Funktion zum Abrufen der Beiträge
     const fetchPosts = async () => {
         setLoading(true);
         setError(null);
+
         try {
             // API- Anfrage an unser Backend
             const response = await fetch('http://localhost:8080/api/posts');
 
             // Überprüfung ob Antwort erfolgreich war
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Netzwerkantwort war nicht ok.');
+                throw new Error('Beiträge konnten nicht geladen werden.');
             }
             const data = await response.json(); // Antwort in JSON umwandeln
             setPosts(data); // Blog Beiträge im State speichern
-            } catch (err) {
-                console.error("Fehler beim Abrufen der Beiträge:", err);
-                setError(`Fehler beim Laden der Blog-Beiträge: ${err.message}`); 
+            setMessage('');
+            } catch (error) {
+                console.error('Fehler beim Abrufen der Beiträge:', error);
+                setMessage(`Fehler: ${error.message}`); 
             } finally {
                 setLoading(false); //Ladezustand beenden
             }
@@ -81,55 +82,58 @@ function PostList() {
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
     if (posts.length === 0 && !editingPost) return <p>Noch keine Blog-Beiträge vorhanden</p>;
 
-    return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '20px auto'}}>
-            <h2>Aktuelle Blog-Beiträge</h2>
-            {message && (
-                <p style={{ marginTop: '15px', padding: '10px', borderRadius: '4px', backgroundColor: message.startsWith('Fehler:') ? '#ffdddd': '#ddffdd', border: `1px solid ${message.startsWith('Fehler:') ? '#ffaaaa' : '#aaffaa'}`
-                }}>
-                    {message}
-                </p>
-            )}
 
-            {editingPost && (
-                <div style={{ marginBottom: '30px' }}>
-                    <PostForm post={editingPost} onSuccess={handlePostFormSuccess} />
-                    <button
-                        onClick={() => setEditingPost(null)}
-                        style={{ padding: '8px 12px', marginTop: '10px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+return (
+    <div>
+        <h2>Aktuelle Blog-Beiträge</h2>
+        {loading ? (
+            <p>Beiträge werden geladen...</p>
+        ) : (
+            <>
+                {message && (
+                    <p className={message.startsWith('Fehler:') ? 'alert-danger' : 'alert-success'}>
+                        {message}
+                    </p>
+                )}
+                {editingPost && (
+                    <div className="form-container" style={{ marginBottom: '30px' }}>
+                        <PostForm post={editingPost} onSuccess={handlePostFormSuccess} />
+                        <button
+                            onClick={() => setEditingPost(null)}
+                            className="btn btn-secondary"
                         >
                         Bearbeitung abbrechen
-                    </button>
-                </div>
-            )}
-            
-            {posts.map(post => (
-                <div key={post._id} style={{ border: '1px solid #eee', padding: '15px', marginBottom: '15px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
-                    <Link to={`/posts/${post._id}`} style={{ textDecoration: 'none', color: '#333' }}>
-                        <h3 style={{ marginBottom: '5px' }}>{post.title}</h3>
-                    </Link>
-                    <p style={{ fontSize: '0.9em', color: '#666', marginBottom: '10px' }}>
-                        Autor: {post.author || 'Unbekannt'} | Erstellt: {new Date(post.createdAt).toLocaleDateString()}
-                    </p>
-                    <p>{post.content}</p>
-                    <div style={{ narginTop: '10px' }}>
-                        <button
-                            onClick={() => handleEdit(post)}
-                            style={{ padding: '8px 12px', marginRight: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                            Bearbeiten
                         </button>
-                        <button
-                            onClick={() => handleDelete(post._id)}
-                            style={{ padding: '8px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                            Löschen
-                        </button> 
-                    </div>        
-                </div>
-            ))}
-        </div>
-    );
+                    </div>
+                )}
+                {posts.map(post => (
+                    <div key={post._id} className="post-item">
+                        <Link to={`/posts/${post._id}`} className="post-title-link">
+                            <h3>{post.title}</h3>
+                        </Link>
+                        <p className="post-meta">
+                            Autor: {post.author || 'Unbekannt'} | Erstellt: {new Date(post.createdAt).toLocaleDateString()}
+                        </p>
+                        <div>
+                            <button
+                                onClick={() => handleEdit(post)}
+                                className="btn btn-primary" 
+                            >
+                                Bearbeiten
+                            </button>
+                            <button
+                                onClick={() => handleDelete(post._id)}
+                                className="btn btn-danger"
+                            >
+                                Löschen
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </>
+        )}
+    </div>
+);
 
 }
 export default PostList; // Exportieren der Komponente 

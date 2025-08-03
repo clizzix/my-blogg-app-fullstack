@@ -31,6 +31,7 @@ function PostDetail() {
 
     useEffect(() => {
         const fetchPost = async () => {
+            setLoading(true);
             try {
                 const response = await fetch(`http://localhost:8080/api/posts/${id}`);
                 if (!response.ok) {
@@ -53,28 +54,30 @@ function PostDetail() {
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
     if (!post) return <p>Beitrag nicht gefunden.</p>;
 
-    return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '20px auto', border: '1px solid #ccc', borderRadius: '8px' }}>
-            <h1 style={{ marginBottom: '10px' }}>{post.title}</h1>
-            <p style={{ fontSize: '0.9em', color: '#666', marginBottom: '20px' }}>
-                Autor: {post.author || 'Unbekannt'} | Erstellt: {new Date(post.createdAt).toLocaleDateString()}
-            </p>
-            <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6'}}>{post.content}</div>
-            <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <Link to="/" style={{ padding: '10px 15px', backgroundColor: '#6c757d', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+
+return (
+    <div className="form-container">
+        <h1>{post.title}</h1>
+        <p className="post-meta">
+            Autor: {post.author || 'Unbekannt'} | Erstellt: {new Date(post.createdAt).toLocaleDateString()}
+        </p>
+        <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', marginTop: '20px' }}>{post.content}</div>
+        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+            <Link to="/" className="btn btn-secondary">
                 Zurück zur Startseite
-                </Link>
-                <Link to={`/posts/edit/${post._id}`} style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>
+            </Link>
+            <Link to={`/posts/edit/${post._id}`} className="btn btn-primary">
                 Beitrag bearbeiten
-                </Link>
-                <button
-                    onClick={handleDelete}
-                    style={{ padding: '10px 15px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1em' }}>
-                        Beitrag löschen
-                    </button>
-            </div>
+            </Link>
+            <button
+                onClick={handleDelete}
+                className="btn btn-danger"
+            >
+                Beitrag löschen
+            </button>
         </div>
-    );
+    </div>
+);
 }
 
 export default PostDetail;

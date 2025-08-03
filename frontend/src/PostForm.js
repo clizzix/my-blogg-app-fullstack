@@ -92,54 +92,53 @@ function PostForm({ post, onSuccess}) {
         }
     };
 
-    return (
-        <div style={{ padding: '20px', maxWidth: '600px', margin: '20px auto', border: '1px solid #ccc', borderRadius: '8px' }}>
-            <h2>{id ? 'Beitrag bearbeiten' : 'Neuen Blog-Beitrag erstellen'}</h2>
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '10px' }}>
-                    <label htmlFor="title" style={{ display: 'block', marginBottom: '5px' }}>Titel:</label>
-                    <input
-                        type="text"
-                        id="title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                        style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}/>
-                    {errors.title && <p style={{ color: 'red', fontSize: '0.8em', marginTop: '5px'}}>{errors.title}</p>}
-                </div>
-                <div style={{ marginBottom: '10px' }}>
-                    <label htmlFor="content" style={{ display: 'block', marginBottom: '5px' }}>Inhalt:</label>
-                    <textarea 
-                        id="content"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        required
-                        rows="6"
-                        style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                    ></textarea>
-                    {errors.content && <p style={{ color: 'red', fontSize: '0.8em', marginTop: '5px' }}>{errors.content}</p>}
-                </div>
-                <div style={{ marginBottom: '10px' }}>
-                    <label htmlFor="author" style={{ display: 'block', marginBottom: '5px' }}>Autor (optional):</label>
-                    <input 
-                        type="text"
-                        id="author"
-                        value={author}
-                        onChange={(e) => setAuthor(e.target.value)}
-                        style={{ width: '100%', padding: '8px', boxSizing: 'border-box'}}
-                        />
-                </div>
-                <button type="submit" style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>
-                    {id ? 'Änderungen speichern' : 'Beitrag erstellen'}
-                </button>
-            </form>
-            {message && (
-                <p style={{ marginTop: '15px', padding: '10px', borderRadius: '4px', backgroundColor: message.startsWith('Fehler:') ? '#ffdddd' : 'ddffdd', border: `1px solid ${message.startsWith('Fehler') ? '#ffaaaa' : '#aaffaa'}`}}>
-                    {message}
-                </p>
-            )}
-        </div>
-    );
+return (
+    <div className="form-container">
+        <h2>{id ? 'Beitrag bearbeiten' : 'Neuen Blog-Beitrag erstellen'}</h2>
+        <form onSubmit={handleSubmit}>
+            <div className="form-group">
+                <label htmlFor="title">Titel:</label>
+                <input
+                    type="text"
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                />
+                {errors.title && <p className="alert-danger" style={{ marginTop: '5px', padding: '5px' }}>{errors.title}</p>}
+            </div>
+            <div className="form-group">
+                <label htmlFor="content">Inhalt:</label>
+                <textarea
+                    id="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    required
+                    rows="6"
+                ></textarea>
+                {errors.content && <p className="alert-danger" style={{ marginTop: '5px', padding: '5px' }}>{errors.content}</p>}
+            </div>
+            <div className="form-group">
+                <label htmlFor="author">Autor (optional):</label>
+                <input
+                    type="text"
+                    id="author"
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
+                />
+            </div>
+            <button type="submit" className="btn btn-primary">
+                {id ? 'Änderungen speichern' : 'Beitrag erstellen'}
+            </button>
+        </form>
+        {message && (
+            <p className={message.startsWith('Fehler:') ? 'alert-danger' : 'alert-success'}>
+                {message}
+            </p>
+        )}
+    </div>
+);
+
 }
 
 export default PostForm;
